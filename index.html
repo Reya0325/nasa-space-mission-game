@@ -7,45 +7,51 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header>
+        <h1>🚀 Project: Echoes of the Cosmos</h1>
+        <p>Design your probe, navigate transit, and stabilize the planetary relay link.</p>
+    </header>
+
     <div class="game-wrapper">
-        <!-- Canvas view handles Main Menu, Story, and Asteroid Dodger -->
+        <!-- Visual Simulation Screen -->
         <section class="simulation-screen">
             <canvas id="spaceCanvas" width="600" height="550"></canvas>
             
             <!-- Floating overlay instruction card for Action Mode -->
             <div id="controls-legend" class="hidden">
-                ⌨️ <strong>CONTROLS:</strong> Use <strong>LEFT / RIGHT Arrow Keys</strong> to steer. Avoid the gray asteroids!
+                ⌨️ <strong>CONTROLS:</strong> Use <strong>LEFT / RIGHT Arrow Keys</strong> (or <strong>A / D</strong>) to steer. Avoid the gray asteroids!
             </div>
         </section>
 
         <!-- Dynamic Assembly Control Dock -->
         <section class="control-dock" id="dock-panel">
+            <!-- Starting Menu State Instructions -->
             <div id="menu-ui">
-                <h2>🛰️ System Initialization</h2>
-                <p>Welcome, Engineer. Please initialize a deployment pipeline from the control screen.</p>
+                <h2>System Initialization</h2>
+                <p>Welcome, Lead Systems Engineer. Please initialize the mission profile matrix via the control screen terminal to start your design protocol.</p>
             </div>
 
-            <!-- This UI swaps in during Hangar Assembly -->
+            <!-- Active Hangar Workspace Dock -->
             <div id="hangar-ui" class="hidden">
                 <div class="telemetry">
-                    <div>📋 Project: <span id="project-title">None</span></div>
-                    <div>💵 Budget: <span id="budget-txt">$0M</span></div>
-                    <div>⚖️ Mass: <span id="mass-txt">0 / 0 kg</span></div>
+                    <div>📋 Project Profile: <span id="project-title">None</span></div>
+                    <div>💵 Budget Grid: <span id="budget-txt">$0M</span></div>
+                    <div>⚖️ Total Structural Mass: <span id="mass-txt">0 / 0 kg</span></div>
                 </div>
                 
                 <div class="shop-section">
-                    <h3>Core Frame Configuration</h3>
-                    <button onclick="applyComponent('Lightweight Shell', 50, 100, 'frame')">Light Frame (-$50M, +100kg) - High Mobility</button>
-                    <button onclick="applyComponent('Reinforced Shielding', 120, 350, 'frame')">Heavy Shield (-$120M, +350kg) - Absorbs 1 Hit</button>
+                    <h3>1. Core Chassis Framework</h3>
+                    <button onclick="applyComponent('Lightweight Shell Framework', 50, 100, 'frame')">Light Frame Shell (-$50M, +100kg) <br>• Maximizes Flight Agility</button>
+                    <button onclick="applyComponent('Reinforced Shielded Framework', 120, 350, 'frame')">Heavy Armor Shielding (-$120M, +350kg) <br>• Absorbs 1 Asteroid Impact</button>
                 </div>
 
                 <div class="shop-section">
-                    <h3>Sub-System Modules</h3>
-                    <button onclick="applyComponent('Solar Wings', 40, 150, 'utility')">Solar Wings (-$40M, +150kg)</button>
-                    <button onclick="applyComponent('Scientific Payload Sensor', 90, 200, 'utility')">Payload Instruments (-$90M, +200kg)</button>
+                    <h3>2. Sub-System Utility Modules</h3>
+                    <button onclick="applyComponent('Photovoltaic Solar Wings', 40, 150, 'utility')">Solar Grid Wings (-$40M, +150kg) <br>• Adds Lateral Stabilizers</button>
+                    <button onclick="applyComponent('High-Frequency Data Sensor', 90, 200, 'utility')">Scientific Payload Array (-$90M, +200kg) <br>• Maximizes Telemetry Return</button>
                 </div>
 
-                <button id="launchBtn" class="launch-action-btn" onclick="triggerLaunchSequence()">🚀 COMMIT TO LAUNCH WINDOW</button>
+                <button id="launchBtn" class="launch-action-btn" onclick="triggerLaunchSequence()">🚀 COMMIT DESIGN TO LAUNCH MATRIX</button>
             </div>
         </section>
     </div>
@@ -53,4 +59,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-        
