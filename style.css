@@ -1,70 +1,192 @@
+/* ==========================================================================
+   🪐 GLOBAL RESET & DESIGN ANCHORS
+   ========================================================================== */
 body {
-    background-color: #0b0f19;
-    color: #f3f4f6;
-    font-family: system-ui, sans-serif;
+    background-color: #030712;
+    color: #f1f5f9;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
     padding: 20px;
+    background-image: radial-gradient(circle at 50% 50%, #0b1528 0%, #030712 100%);
+    min-height: 100vh;
 }
-header { text-align: center; margin-bottom: 20px; }
+
+header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    font-size: 2.2em;
+    color: #38bdf8;
+    margin: 0 0 5px 0;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+header p {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95em;
+    font-family: monospace;
+}
+
+/* ==========================================================================
+   🖥️ SYSTEM CONTROL HUB GRID
+   ========================================================================== */
 .game-wrapper {
     display: flex;
-    max-width: 1000px;
+    max-width: 1050px;
     margin: 0 auto;
-    gap: 20px;
-    background: #111827;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #1f2937;
+    gap: 25px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
 }
+
+/* Visual Canvas Frame Container */
 .simulation-screen {
-    flex: 2;
+    flex: 1.3;
+    position: relative;
     background: #000;
-    border-radius: 8px;
+    border-radius: 12px;
+    border: 2px solid #1e293b;
     overflow: hidden;
-    border: 2px solid #374151;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
 }
-canvas { display: block; background: #000; }
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* ==========================================================================
+   🔧 OPERATIONS SIDEBAR / COMMAND DOCK
+   ========================================================================== */
 .control-dock {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
+    background: #0f172a;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
 }
+
+/* Real-Time Telemetry Panels */
 .telemetry {
-    font-size: 1.2em;
-    font-weight: bold;
-    background: #1f2937;
-    padding: 10px;
-    border-radius: 6px;
+    font-size: 1.05em;
+    font-family: monospace;
+    background: #020617;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #38bdf8;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
 }
+
+.telemetry span {
+    color: #f1f5f9;
+    font-weight: bold;
+}
+
+/* Part Upgrades Section Frameworks */
+.shop-section h3 {
+    font-size: 0.9em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 8px 0;
+    font-family: monospace;
+}
+
+/* Module Purchase Interactive Controls */
 .shop-section button {
     display: block;
     width: 100%;
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 8px;
-    margin: 5px 0;
-    border-radius: 4px;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-size: 0.88em;
+    border: 1px solid #334155;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
     cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease-in-out;
 }
-.shop-section button:hover { background: #1d4ed8; }
+
+.shop-section button:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.shop-section button:active {
+    transform: translateY(0);
+}
+
+/* Main Ignition Action Handler */
 .launch-action-btn {
     background: #10b981;
     color: white;
     font-size: 1.1em;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
     font-weight: bold;
+    letter-spacing: 0.05em;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: auto;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
 }
-.launch-action-btn:hover { background: #059669; }
-#game-status {
-    background: #000;
-    color: #10b981;
-    font-family: monospace;
-    padding: 10px;
-    border: 1px solid #10b981;
-    border-radius: 4px;
+
+.launch-action-btn:hover {
+    background: #059669;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Overlay In-Game Floating Guidance Box */
+#controls-legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.9);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    border: 1px solid #f43f5e;
+    text-align: center;
+    color: #e2e8f0;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Utilities Global Structs Helpers */
+.hidden {
+    display: none !important;
+}
+
+#menu-ui h2 {
+    font-size: 1.3em;
+    color: #38bdf8;
+    margin-top: 0;
+}
+
+#menu-ui p {
+    color: #94a3b8;
+    font-size: 0.95em;
+    line-height: 1.5;
 }
