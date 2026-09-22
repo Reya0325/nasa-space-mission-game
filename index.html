@@ -3,45 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visual NASA Space Mission Simulator</title>
+    <title>NASA: Echoes of the Cosmos</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>🚀 Project: Visual Space Mission</h1>
-        <p>Design your probe, launch, and navigate safely into stable orbit!</p>
-    </header>
-
     <div class="game-wrapper">
-        <!-- Visual Simulation Screen -->
+        <!-- Canvas view handles Main Menu, Story, and Asteroid Dodger -->
         <section class="simulation-screen">
-            <canvas id="spaceCanvas" width="600" height="500"></canvas>
+            <canvas id="spaceCanvas" width="600" height="550"></canvas>
+            
+            <!-- Floating overlay instruction card for Action Mode -->
+            <div id="controls-legend" class="hidden">
+                ⌨️ <strong>CONTROLS:</strong> Use <strong>LEFT / RIGHT Arrow Keys</strong> to steer. Avoid the gray asteroids!
+            </div>
         </section>
 
-        <!-- Command Station Control Dock -->
-        <section class="control-dock">
-            <div class="telemetry">
-                <div>💵 Budget: <span id="budget-txt">$500M</span></div>
-                <div>⚖️ Mass: <span id="mass-txt">0 / 1200 kg</span></div>
+        <!-- Dynamic Assembly Control Dock -->
+        <section class="control-dock" id="dock-panel">
+            <div id="menu-ui">
+                <h2>🛰️ System Initialization</h2>
+                <p>Welcome, Engineer. Please initialize a deployment pipeline from the control screen.</p>
             </div>
 
-            <div class="shop-section">
-                <h3>1. Choose Power Core</h3>
-                <button onclick="selectPower('Solar', 100, 200)">Solar Panels (-$100M, +200kg)</button>
-                <button onclick="selectPower('Nuclear RTG', 250, 100)">RTG Reactor (-$250M, +100kg)</button>
-            </div>
+            <!-- This UI swaps in during Hangar Assembly -->
+            <div id="hangar-ui" class="hidden">
+                <div class="telemetry">
+                    <div>📋 Project: <span id="project-title">None</span></div>
+                    <div>💵 Budget: <span id="budget-txt">$0M</span></div>
+                    <div>⚖️ Mass: <span id="mass-txt">0 / 0 kg</span></div>
+                </div>
+                
+                <div class="shop-section">
+                    <h3>Core Frame Configuration</h3>
+                    <button onclick="applyComponent('Lightweight Shell', 50, 100, 'frame')">Light Frame (-$50M, +100kg) - High Mobility</button>
+                    <button onclick="applyComponent('Reinforced Shielding', 120, 350, 'frame')">Heavy Shield (-$120M, +350kg) - Absorbs 1 Hit</button>
+                </div>
 
-            <div class="shop-section">
-                <h3>2. Add Payload</h3>
-                <button onclick="addTool('Camera', 50, 100)">Camera (-$50M, +100kg)</button>
-                <button onclick="addTool('Radar Sensor', 120, 300)">Radar Sensor (-$120M, +300kg)</button>
-            </div>
+                <div class="shop-section">
+                    <h3>Sub-System Modules</h3>
+                    <button onclick="applyComponent('Solar Wings', 40, 150, 'utility')">Solar Wings (-$40M, +150kg)</button>
+                    <button onclick="applyComponent('Scientific Payload Sensor', 90, 200, 'utility')">Payload Instruments (-$90M, +200kg)</button>
+                </div>
 
-            <button id="launchBtn" class="launch-action-btn" onclick="startVisualLaunch()">🚀 IGNIITION & LAUNCH</button>
-            <div id="game-status">Status: Preparing on Launchpad...</div>
+                <button id="launchBtn" class="launch-action-btn" onclick="triggerLaunchSequence()">🚀 COMMIT TO LAUNCH WINDOW</button>
+            </div>
         </section>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
+        
