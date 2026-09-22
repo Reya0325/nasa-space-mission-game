@@ -1,43 +1,115 @@
+// ==========================================
+// 🛰️ SYSTEM SETUP & CENTRAL STATE MATRIX
+// ==========================================
 const canvas = document.getElementById("spaceCanvas");
 const ctx = canvas.getContext("2d");
 
-// System State Manager
 let game = {
     screen: 'menu', // menu, story, modeSelect, hangar, flight, victory, gameOver
     storyIndex: 0,
     projectType: '',
     budget: 0,
+    maxBudget: 1,
     mass: 0,
-    maxMass: 0,
+    maxMass: 1,
     hasFrame: false,
     hasUtility: false,
-    health: 1
+    selectedFrame: 'None',
+    selectedUtility: 'None',
+    health: 1,
+    maxHealth: 1
 };
 
-// Physics and Entities Data
-let rocket = { x: 300, y: 450, vx: 0, width: 24, height: 55, speedModifier: 5 };
+// ==========================================
+// ☄️ ENTITIES & ARCADE PHYSICS VECTORS
+// ==========================================
+let rocket = { x: 300, y: 440, width: 28, height: 60, speedModifier: 5 };
 let asteroids = [];
 let stars = [];
 let keys = {};
 let flightTimer = 0;
+const FLIGHT_DURATION = 20; // Seconds to survive
 
-// Initialize Background Stars
-for(let i=0; i<40; i++) {
-    stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*2+1 });
+// Generate Starfield Layering
+for (let i = 0; i < 60; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 0.5,
+        speed: Math.random() * 1.5 + 0.5
+    });
 }
 
-// Dialog Script (Star Rail/Visual Novel style)
+// ==========================================
+// 📖 HONKAI STAR RAIL STYLE DIALOGUE MATRIX
+// ==========================================
 const storyText = [
-    "SYSTEM: Warning. High-energy solar wind storm approaching orbital sector 7.",
-    "DIRECTOR: Our outer relay satellites are down. Earth is blind to incoming cosmic flares.",
-    "DIRECTOR: We need to design and launch an emergency probe immediately.",
-    "DIRECTOR: Budget grids are unstable. Every choice you make in the hangar determines if our crew survives the orbital insertion trajectory."
+    "SYSTEM NODE: Year 2146. A massive Class-X solar anomaly has scrambled orbital networks.",
+    "COMMAND HQ: Sector 7 has gone dark. Ground control is completely blind to incoming solar flares.",
+    "DIRECTOR: We must assemble and launch an emergency shielding relay probe immediately.",
+    "DIRECTOR: Watch your engineering trade-offs carefully. A probe that is too heavy won't make orbit, and one that is too flimsy will burn up."
 ];
 
-// Click Listeners for Buttons/Canvas Menu Interaction
+// ==========================================
+// 🔊 PURE JAVASCRIPT AUDIO SYNTHESIZER ENGINE
+// ==========================================
+const AudioEngine = {
+    ctx: null,
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+    playThrust() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(80, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    },
+    playExplosion() {
+        this.init();
+        let osc = this.ctx.createOscillator();
+        let gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+    },
+    playSuccess() {
+        this.init();
+        let notes = [261.63, 329.63, 392.00, 523.25]; // C E G C arpeggio
+        notes.forEach((freq, index) => {
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + index * 0.1);
+            gain.gain.setValueAtTime(0.15, this.ctx.currentTime + index * 0.1);
+            gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + index * 0.1 + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + index * 0.1);
+            osc.stop(this.ctx.currentTime + index * 0.1 + 0.2);
+        });
+    }
+};
+
+// ==========================================
+// 🖱️ INPUT EVENT HANDLE CORES
+// ==========================================
 canvas.addEventListener("click", handleCanvasClick);
-window.addEventListener("keydown", e => keys[e.key] = true);
-window.addEventListener("keyup", e => keys[e.key] = false);
+window.addEventListener("keydown", e => { keys[e.key] = true; });
+window.addEventListener("keyup", e => { keys[e.key] = false; });
 
 function handleCanvasClick(e) {
     const rect = canvas.getBoundingClientRect();
@@ -45,78 +117,111 @@ function handleCanvasClick(e) {
     const clickY = e.clientY - rect.top;
 
     if (game.screen === 'menu') {
-        // Play Button Area Box
-        if (clickX >= 200 && clickX <= 400 && clickY >= 260 && clickY <= 310) {
+        if (clickX >= 180 && clickX <= 420 && clickY >= 280 && clickY <= 340) {
+            AudioEngine.playThrust();
             game.screen = 'story';
             game.storyIndex = 0;
         }
-    } else if (game.screen === 'story') {
+    } 
+    else if (game.screen === 'story') {
+        AudioEngine.playThrust();
         game.storyIndex++;
         if (game.storyIndex >= storyText.length) {
             game.screen = 'modeSelect';
         }
-    } else if (game.screen === 'modeSelect') {
-        // Mode Buttons Clicking Bounds
-        if (clickX >= 150 && clickX <= 450) {
-            if (clickY >= 180 && clickY <= 230) setupHangar('Satellite', 250, 700);
-            if (clickY >= 250 && clickY <= 300) setupHangar('Deep-Space Telescope', 800, 1500);
-            if (clickY >= 320 && clickY <= 370) setupHangar('Mars Rover Probe', 450, 1000);
+    } 
+    else if (game.screen === 'modeSelect') {
+        if (clickX >= 120 && clickX <= 480) {
+            if (clickY >= 180 && clickY <= 235) setupHangar('Weather Satellite', 250, 600);
+            if (clickY >= 260 && clickY <= 315) setupHangar('Deep-Space Telescope', 800, 1400);
+            if (clickY >= 340 && clickY <= 395) setupHangar('Mars Exploration Rover', 450, 1000);
         }
-    } else if (game.screen === 'victory' || game.screen === 'gameOver') {
-        // Click to reset
-        if (clickY >= 400 && clickY <= 450) {
-            game.screen = 'menu';
-            document.getElementById("hangar-ui").classList.add("hidden");
-            document.getElementById("menu-ui").classList.remove("hidden");
+    } 
+    else if (game.screen === 'victory' || game.screen === 'gameOver') {
+        if (clickX >= 180 && clickX <= 420 && clickY >= 420 && clickY <= 475) {
+            resetToMainMenu();
         }
     }
 }
 
+// ==========================================
+// 🔧 SHIP ASSEMBLY LOGIC & PREVIEWS
+// ==========================================
 function setupHangar(type, budgetLimit, massLimit) {
+    AudioEngine.playThrust();
     game.screen = 'hangar';
     game.projectType = type;
     game.budget = budgetLimit;
+    game.maxBudget = budgetLimit;
     game.mass = 0;
     game.maxMass = massLimit;
     game.hasFrame = false;
     game.hasUtility = false;
+    game.selectedFrame = 'None';
+    game.selectedUtility = 'None';
     game.health = 1;
-    rocket.speedModifier = 6; // base speed
+    game.maxHealth = 1;
+    rocket.speedModifier = 6; 
 
     document.getElementById("menu-ui").classList.add("hidden");
     document.getElementById("hangar-ui").classList.remove("hidden");
     
     document.getElementById("project-title").innerText = type;
-    document.getElementById("budget-txt").innerText = `$${game.budget}M`;
-    document.getElementById("mass-txt").innerText = `0 / ${massLimit} kg`;
+    updateDOMTelemetry();
 }
 
 function applyComponent(name, cost, componentMass, category) {
+    if (game.screen !== 'hangar') return;
+    
+    // Check if replacing an existing item to prevent compounding budget deductions
+    if (category === 'frame' && game.hasFrame) {
+        alert("You must launch or clear configuration to replace frames!"); return;
+    }
+    if (category === 'utility' && game.hasUtility) {
+        alert("You must launch or clear configuration to replace components!"); return;
+    }
+
     if (game.budget - cost < 0 || game.mass + componentMass > game.maxMass) {
-        alert("Engineering Constraint Violation: Budget or Mass exceeded!");
+        alert("CRITICAL VIOLATION: Budget limits or structural mass capacities breached!");
         return;
     }
+    
+    AudioEngine.playThrust();
     game.budget -= cost;
     game.mass += componentMass;
 
     if (category === 'frame') {
         game.hasFrame = true;
+        game.selectedFrame = name;
         if (name.includes("Reinforced")) {
-            game.health = 2; // Extra hit point
-            rocket.speedModifier = 3.5; // Heavier frame handles slower
+            game.health = 2; 
+            game.maxHealth = 2;
+            rocket.speedModifier = 3.8; // Heavy shield slows mobility down
+        } else {
+            game.health = 1;
+            game.maxHealth = 1;
+            rocket.speedModifier = 6.5; // Lightweight speeds handling up
         }
     }
-    if (category === 'utility') game.hasUtility = true;
+    if (category === 'utility') {
+        game.hasUtility = true;
+        game.selectedUtility = name;
+    }
 
+    updateDOMTelemetry();
+}
+
+function updateDOMTelemetry() {
     document.getElementById("budget-txt").innerText = `$${game.budget}M`;
     document.getElementById("mass-txt").innerText = `${game.mass} / ${game.maxMass} kg`;
 }
 
 function triggerLaunchSequence() {
     if (!game.hasFrame || !game.hasUtility) {
-        alert("Pre-flight checklist failed! You must select at least 1 Frame and 1 Subsystem Module.");
+        alert("LAUNCH PREVENTED: Rocket requires both a Frame configuration and an active Utility module!");
         return;
     }
+    AudioEngine.playThrust();
     game.screen = 'flight';
     flightTimer = 0;
     asteroids = [];
@@ -125,138 +230,48 @@ function triggerLaunchSequence() {
     document.getElementById("controls-legend").classList.remove("hidden");
 }
 
-// Centralized Render Processing Engine Loop
+function resetToMainMenu() {
+    AudioEngine.playThrust();
+    game.screen = 'menu';
+    game.storyIndex = 0;
+    document.getElementById("hangar-ui").classList.add("hidden");
+    document.getElementById("controls-legend").classList.add("hidden");
+    document.getElementById("menu-ui").classList.remove("hidden");
+}
+
+// ==========================================
+// 🎨 ENGINE ANIMATION RENDERING CYCLES
+// ==========================================
 function engineLoop() {
-    ctx.fillStyle = "#090d16";
+    // Space Background Sweep
+    ctx.fillStyle = "#05070f";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Render Stars Background animation
+    // Deep Space Layered Grid Effect
+    ctx.strokeStyle = "rgba(30, 41, 59, 0.4)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < canvas.width; i += 50) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+    }
+    for (let j = 0; j < canvas.height; j += 50) {
+        ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+    }
+
+    // Process Twinkling Dynamic Stars
     ctx.fillStyle = "#ffffff";
     stars.forEach(star => {
         ctx.fillRect(star.x, star.y, star.size, star.size);
         if (game.screen === 'flight') {
-            star.y += 2; // Starfield scrolling movement effect during launch
-            if (star.y > canvas.height) star.y = 0;
+            star.y += star.speed * 2.5; // Star speed parallax
+            if (star.y > canvas.height) { star.y = 0; star.x = Math.random() * canvas.width; }
         }
     });
 
     if (game.screen === 'menu') {
+        // Main Title Header
         ctx.fillStyle = "#38bdf8";
-        ctx.font = "bold 32px sans-serif";
+        ctx.font = "bold 36px system-ui";
         ctx.textAlign = "center";
+        ctx.shadowColor = "#0284c7";
+        ctx.shadowBlur = 15;
         ctx.fillText("🪐 ECHOES OF THE COSMOS", 300, 160);
-        
-        ctx.font = "16px sans-serif";
-        ctx.fillStyle = "#94a3b8";
-        ctx.fillText("NASA Space Apps Mission Interface", 300, 190);
-
-        // Core Play Interactive Button Box
-        ctx.fillStyle = "#10b981";
-        ctx.fillRect(200, 260, 200, 50);
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 18px sans-serif";
-        ctx.fillText("INITIALIZE STORY", 300, 292);
-
-    } else if (game.screen === 'story') {
-        // Narrative Dialog Overlay Window box
-        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-        ctx.strokeStyle = "#1e293b";
-        ctx.lineWidth = 3;
-        ctx.fillRect(40, 360, 520, 140);
-        ctx.strokeRect(40, 360, 520, 140);
-
-        ctx.fillStyle = "#f8fafc";
-        ctx.font = "16px monospace";
-        ctx.textAlign = "left";
-        wrapText(storyText[game.storyIndex], 60, 400, 480, 22);
-
-        ctx.fillStyle = "#38bdf8";
-        ctx.font = "bold 12px sans-serif";
-        ctx.fillText("▼ CLICK SCREEN TO ADVANCE", 400, 480);
-
-    } else if (game.screen === 'modeSelect') {
-        ctx.fillStyle = "#f8fafc";
-        ctx.font = "bold 24px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("CHOOSE YOUR MISSION BLUEPRINT", 300, 100);
-
-        // Build Tracks Buttons List
-        let modes = [
-            { label: "1. Weather Satellite (Budget: $250M)", y: 180 },
-            { label: "2. Deep-Space Telescope (Budget: $800M)", y: 250 },
-            { label: "3. Interplanetary Rover (Budget: $450M)", y: 320 }
-        ];
-        modes.forEach(m => {
-            ctx.fillStyle = "#1e293b";
-            ctx.strokeStyle = "#38bdf8";
-            ctx.fillRect(150, m.y, 300, 50);
-            ctx.strokeRect(150, m.y, 300, 50);
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "14px sans-serif";
-            ctx.fillText(m.label, 300, m.y + 30);
-        });
-
-    } else if (game.screen === 'hangar') {
-        ctx.fillStyle = "#64748b";
-        ctx.font = "18px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(`System Configuration Room: Project ${game.projectType}`, 300, 100);
-        // Display Preview of Probe on schematic board grid line
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(285, 260, 30, 70);
-        ctx.fillStyle = "#64748b";
-        ctx.font = "12px monospace";
-        ctx.fillText("[Blueprint Matrix View]", 300, 360);
-
-    } else if (game.screen === 'flight') {
-        flightTimer += 1/60;
-
-        // Player lateral input listeners controls execution loop
-        if (keys["ArrowLeft"] || keys["a"]) rocket.x -= rocket.speedModifier;
-        if (keys["ArrowRight"] || keys["d"]) rocket.x += rocket.speedModifier;
-
-        // Constraint ship mapping space coordinates bounds wrapper
-        if (rocket.x < 20) rocket.x = 20;
-        if (rocket.x > canvas.width - 20) rocket.x = canvas.width - 20;
-
-        // Spawn falling debris metrics tracking systems
-        if (Math.random() < 0.05) {
-            asteroids.push({ x: Math.random()*canvas.width, y: -20, r: Math.random()*15+8, speed: Math.random()*4+3 });
-        }
-
-        // Processing active objects translation update physics
-        asteroids.forEach((ast, idx) => {
-            ast.y += ast.speed;
-            
-            // Render Asteroid
-            ctx.beginPath();
-            ctx.arc(ast.x, ast.y, ast.r, 0, Math.PI*2);
-            ctx.fillStyle = "#64748b";
-            ctx.fill();
-
-            // Collision system tracking calculations matrix intersection
-            let dist = Math.hypot(rocket.x - ast.x, rocket.y + 25 - ast.y);
-            if (dist < ast.r + 15) {
-                asteroids.splice(idx, 1);
-                game.health--;
-                if (game.health <= 0) {
-                    game.screen = 'gameOver';
-                    document.getElementById("controls-legend").classList.add("hidden");
-                }
-            }
-        });
-
-        // Draw Player Rocket Probe
-        ctx.fillStyle = "#e2e8f0";
-        ctx.fillRect(rocket.x - rocket.width/2, rocket.y, rocket.width, rocket.height);
-        ctx.fillStyle = "#ef4444";
-        ctx.fillRect(rocket.x - rocket.width/2, rocket.y + rocket.height, rocket.width, 8); // Engine glow active
-
-        // UI Telemetry Overlay elements
-        ctx.fillStyle = "#10b981";
-        ctx.font = "bold 14px monospace";
-        ctx.textAlign = "left";
-        ctx.fillText(`ORBIT REACH INDICES: ${Math.min(100, Math.floor((flightTimer/20)*100))}%`, 20, 40);
-        ctx.fillText(`STRUCTURAL INTEGRITY: ${game.health}`, 20, 60);
-
-        if (flightTimer >= 20) { // Successfully survive 20 seconds
