@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Mission Design Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🛰️ Project: Space Trade-Offs</h1>
+        <p>NASA Space Apps Hackathon Prototype</p>
+    </header>
+
+    <main class="game-container">
+        <!-- Resource Dashboard -->
+        <section class="dashboard">
+            <div class="card">
+                <h3>💵 Budget Left</h3>
+                <p id="budget-display">$500,000,000</p>
+            </div>
+            <div class="card">
+                <h3>⚖️ Mass Capacity</h3>
+                <p id="mass-display">0 / 1500 kg</p>
+            </div>
+            <div class="card">
+                <h3>⚡ Power Balance</h3>
+                <p id="power-display">0W / 0W</p>
+            </div>
+        </section>
+
+        <!-- Components Shop -->
+        <section class="controls">
+            <h2>1. Select Power Source</h2>
+            <div class="btn-group">
+                <button onclick="setPowerSource('Solar Arrays', 50000000, 300, 400)">Solar Panels (-$50M, +300kg, +400W)</button>
+                <button onclick="setPowerSource('RTG (Nuclear)', 150000000, 100, 300)">RTG (-$150M, +100kg, +300W)</button>
+            </div>
+
+            <h2>2. Add Scientific Instruments</h2>
+            <div class="btn-group">
+                <button onclick="addInstrument('Spectrometer', 80000000, 150, 150)">Spectrometer (-$80M, +150kg, -150W)</button>
+                <button onclick="addInstrument('HD Camera Array', 60000000, 80, 100)">HD Camera Array (-$60M, +80kg, -100W)</button>
+                <button onclick="addInstrument('Sub-surface Radar', 120000000, 400, 250)">Sub-surface Radar (-$120M, +400kg, -250W)</button>
+            </div>
+
+            <h2>3. Mission Launch</h2>
+            <button id="launch-btn" class="success-btn" onclick="simulateLaunch()">🚀 Launch Mission</button>
+        </section>
+
+        <!-- Console Log Output -->
+        <section class="console-box">
+            <h2>📟 Mission Control Logs</h2>
+            <div id="log-output">Welcome, Director. Configure your payload and check telemetry systems before launching...</div>
+        </section>
+    </main>
+</body>
+</html>
