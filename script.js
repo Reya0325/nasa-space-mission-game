@@ -173,7 +173,6 @@ function setupHangar(type, budgetLimit, massLimit) {
 function applyComponent(name, cost, componentMass, category) {
     if (game.screen !== 'hangar') return;
     
-    // Check if replacing an existing item to prevent compounding budget deductions
     if (category === 'frame' && game.hasFrame) {
         alert("You must launch or clear configuration to replace frames!"); return;
     }
@@ -196,11 +195,11 @@ function applyComponent(name, cost, componentMass, category) {
         if (name.includes("Reinforced")) {
             game.health = 2; 
             game.maxHealth = 2;
-            rocket.speedModifier = 3.8; // Heavy shield slows mobility down
+            rocket.speedModifier = 3.8; 
         } else {
             game.health = 1;
             game.maxHealth = 1;
-            rocket.speedModifier = 6.5; // Lightweight speeds handling up
+            rocket.speedModifier = 6.5; 
         }
     }
     if (category === 'utility') {
@@ -262,7 +261,7 @@ function engineLoop() {
     stars.forEach(star => {
         ctx.fillRect(star.x, star.y, star.size, star.size);
         if (game.screen === 'flight') {
-            star.y += star.speed * 2.5; // Star speed parallax
+            star.y += star.speed * 2.5; 
             if (star.y > canvas.height) { star.y = 0; star.x = Math.random() * canvas.width; }
         }
     });
@@ -275,3 +274,9 @@ function engineLoop() {
         ctx.shadowColor = "#0284c7";
         ctx.shadowBlur = 15;
         ctx.fillText("🪐 ECHOES OF THE COSMOS", 300, 160);
+        ctx.shadowBlur = 0; 
+        
+        ctx.font = "14px monospace";
+        ctx.fillStyle = "#64748b";
+        ctx.fillText("NASA Space Apps Management Console", 300, 200);
+
