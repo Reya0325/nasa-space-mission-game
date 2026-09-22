@@ -79,9 +79,7 @@ function loop() {
     ctx.beginPath();
     ctx.arc(planet.x, planet.y, orbitRadius, 0, Math.PI * 2);
     ctx.strokeStyle = "rgba(56, 189, 248, 0.2)";
-    ctx.setLineDash([5, 5]);
     ctx.stroke();
-    ctx.setLineDash([]);
 
     if (state.stage === 'hangar') {
         // Draw rocket waiting on launchpad base
@@ -111,8 +109,7 @@ function loop() {
         rocket.x = planet.x + Math.cos(angle) * orbitRadius;
         rocket.y = planet.y + Math.sin(angle) * orbitRadius;
 
-        // Draw probe rotation deployment wings
-        ctx.fillStyle = "#e2e8f0";
+        // Draw probe
         drawRocket(rocket.x, rocket.y);
     }
 
