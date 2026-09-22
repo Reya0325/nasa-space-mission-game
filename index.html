@@ -3,57 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NASA Mission Design Simulator</title>
+    <title>Visual NASA Space Mission Simulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>🛰️ Project: Space Trade-Offs</h1>
-        <p>NASA Space Apps Hackathon Prototype</p>
+        <h1>🚀 Project: Visual Space Mission</h1>
+        <p>Design your probe, launch, and navigate safely into stable orbit!</p>
     </header>
 
-    <main class="game-container">
-        <!-- Resource Dashboard -->
-        <section class="dashboard">
-            <div class="card">
-                <h3>💵 Budget Left</h3>
-                <p id="budget-display">$500,000,000</p>
-            </div>
-            <div class="card">
-                <h3>⚖️ Mass Capacity</h3>
-                <p id="mass-display">0 / 1500 kg</p>
-            </div>
-            <div class="card">
-                <h3>⚡ Power Balance</h3>
-                <p id="power-display">0W / 0W</p>
-            </div>
+    <div class="game-wrapper">
+        <!-- Visual Simulation Screen -->
+        <section class="simulation-screen">
+            <canvas id="spaceCanvas" width="600" height="500"></canvas>
         </section>
 
-        <!-- Components Shop -->
-        <section class="controls">
-            <h2>1. Select Power Source</h2>
-            <div class="btn-group">
-                <button onclick="setPowerSource('Solar Arrays', 50000000, 300, 400)">Solar Panels (-$50M, +300kg, +400W)</button>
-                <button onclick="setPowerSource('RTG (Nuclear)', 150000000, 100, 300)">RTG (-$150M, +100kg, +300W)</button>
+        <!-- Command Station Control Dock -->
+        <section class="control-dock">
+            <div class="telemetry">
+                <div>💵 Budget: <span id="budget-txt">$500M</span></div>
+                <div>⚖️ Mass: <span id="mass-txt">0 / 1200 kg</span></div>
             </div>
 
-            <h2>2. Add Scientific Instruments</h2>
-            <div class="btn-group">
-                <button onclick="addInstrument('Spectrometer', 80000000, 150, 150)">Spectrometer (-$80M, +150kg, -150W)</button>
-                <button onclick="addInstrument('HD Camera Array', 60000000, 80, 100)">HD Camera Array (-$60M, +80kg, -100W)</button>
-                <button onclick="addInstrument('Sub-surface Radar', 120000000, 400, 250)">Sub-surface Radar (-$120M, +400kg, -250W)</button>
+            <div class="shop-section">
+                <h3>1. Choose Power Core</h3>
+                <button onclick="selectPower('Solar', 100, 200)">Solar Panels (-$100M, +200kg)</button>
+                <button onclick="selectPower('Nuclear RTG', 250, 100)">RTG Reactor (-$250M, +100kg)</button>
             </div>
 
-            <h2>3. Mission Launch</h2>
-            <button id="launch-btn" class="success-btn" onclick="simulateLaunch()">🚀 Launch Mission</button>
-        </section>
+            <div class="shop-section">
+                <h3>2. Add Payload</h3>
+                <button onclick="addTool('Camera', 50, 100)">Camera (-$50M, +100kg)</button>
+                <button onclick="addTool('Radar Sensor', 120, 300)">Radar Sensor (-$120M, +300kg)</button>
+            </div>
 
-        <!-- Console Log Output -->
-        <section class="console-box">
-            <h2>📟 Mission Control Logs</h2>
-            <div id="log-output">Welcome, Director. Configure your payload and check telemetry systems before launching...</div>
+            <button id="launchBtn" class="launch-action-btn" onclick="startVisualLaunch()">🚀 IGNIITION & LAUNCH</button>
+            <div id="game-status">Status: Preparing on Launchpad...</div>
         </section>
-    </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
