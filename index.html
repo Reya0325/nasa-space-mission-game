@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NASA: Echoes of the Cosmos</title>
     <style>
-        /* ==========================================
-           🪐 NEON COMMAND STATION DASHBOARD STYLES
-           ========================================== */
         body {
             background-color: #030712;
             color: #f1f5f9;
@@ -132,15 +129,12 @@
 
     <div class="game-wrapper">
         <section class="simulation-screen">
-            <!-- Game View Window -->
             <canvas id="spaceCanvas" width="600" height="550"></canvas>
-            
             <div id="controls-legend" class="hidden">
                 ⌨️ <strong>CONTROLS:</strong> Use <strong>LEFT / RIGHT Arrow Keys</strong> (or <strong>A / D</strong>) to steer and dodge space rocks!
             </div>
         </section>
 
-        <!-- Dynamic Mission Setup Dock -->
         <section class="control-dock">
             <div id="menu-ui">
                 <h2>System Initialization</h2>
@@ -150,20 +144,20 @@
             <div id="hangar-ui" class="hidden">
                 <div class="telemetry">
                     <div>📋 Project Track: <span id="project-title" style="color:#fff;">None</span></div>
-                    <div>💵 Budget Grid: <span id="budget-txt" style="color:#fff;">$0M</span></div>
+                    <div>💵 Remaining Budget: <span id="budget-txt" style="color:#fff;">$0M</span></div>
                     <div>⚖️ Chassis Mass Load: <span id="mass-txt" style="color:#fff;">0 / 0 kg</span></div>
                 </div>
                 
                 <div class="shop-section">
                     <h3>1. Core Frame Configuration</h3>
-                    <button onclick="buyFrame('Light Shelling Shell', 50, 100)">Light Frame Shell (-$50M, +100kg) <br>• Maximizes Flight Agility</button>
-                    <button onclick="buyFrame('Heavy Armor Shielding', 120, 350)">Heavy Armor Shielding (-$120M, +350kg) <br>• Absorbs 1 Asteroid Impact</button>
+                    <button onclick="buyFrame('Light Shell', 50, 100)">Light Frame Shell (-$50M, +100kg) <br>• Maximizes Flight Agility</button>
+                    <button onclick="buyFrame('Heavy Shielding', 120, 350)">Heavy Armor Shielding (-$120M, +350kg) <br>• Absorbs 1 Asteroid Impact</button>
                 </div>
 
                 <div class="shop-section">
                     <h3>2. Sub-System Modules</h3>
-                    <button onclick="buyUtility('Photovoltaic Solar Wings', 40, 150)">Solar Grid Wings (-$40M, +150kg) <br>• Adds Panel Attachments</button>
-                    <button onclick="buyUtility('Scientific Payload Sensor', 90, 200)">Scientific Payload Sensors (-$90M, +200kg) <br>• Gathers Data Core</button>
+                    <button onclick="buyUtility('Solar Wings', 40, 150)">Solar Grid Wings (-$40M, +150kg) <br>• Adds Panel Attachments</button>
+                    <button onclick="buyUtility('Payload Sensor Array', 90, 200)">Scientific Payload Sensors (-$90M, +200kg) <br>• Gathers Data Core</button>
                 </div>
 
                 <button class="launch-action-btn" onclick="launchProbe()">🚀 FIRE SHIP SYSTEM IGNITION</button>
@@ -171,20 +165,17 @@
         </section>
     </div>
 
-    <!-- ==========================================================================
-         🎮 GAME INTERNAL ENGINE LOOPS
-         ========================================================================== -->
     <script>
         const canvas = document.getElementById("spaceCanvas");
         const ctx = canvas.getContext("2d");
 
         let game = {
-            screen: 'menu', // menu, story, modeSelect, hangar, flight, victory, gameOver
+            screen: 'menu',
             storyIndex: 0,
             projectType: '',
             budget: 0,
             mass: 0,
-            maxMass: 1,
+            maxMass: 1000, // Safe default starter value
             hasFrame: false,
             hasUtility: false,
             selectedFrame: 'None',
@@ -199,7 +190,6 @@
         let keys = {};
         let flightTimer = 0;
 
-        // Generate stars
         for (let i = 0; i < 50; i++) {
             stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 0.5 });
         }
@@ -211,10 +201,8 @@
             "DIRECTOR: Mind your engineering constraints. Overweight builds can't break orbit, and thin ones will shatter."
         ];
 
-        // Click interaction logic targeting canvas boxes
         canvas.addEventListener("click", e => {
             const rect = canvas.getBoundingClientRect();
-            // Scaling calculation to fix canvas scaling display borders
             const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
             const cy = (e.clientY - rect.top) * (canvas.height / rect.height);
 
@@ -242,6 +230,7 @@
                     game.hasUtility = false;
                     game.selectedFrame = 'None';
                     game.selectedUtility = 'None';
+                    game.mass = 0;
                     document.getElementById("hangar-ui").classList.add("hidden");
                     document.getElementById("menu-ui").classList.remove("hidden");
                 }
@@ -249,3 +238,17 @@
         });
 
         window.addEventListener("keydown", e => { keys[e.key] = true; });
+        window.addEventListener("keyup", e => { keys[e.key] = false; });
+
+        function enterHangar(type, budgetLimit, massLimit) {
+            game.screen = 'hangar';
+            game.projectType = type;
+            game.budget = budgetLimit;
+            game.maxMass = massLimit;
+            game.mass = 0;
+            game.hasFrame = false;
+            game.hasUtility = false;
+            game.selectedFrame = 'None';
+            game.selectedUtility = 'None';
+            document.getElementById("menu-ui").classList.add("hidden");
+            document.getElementById("hangar-ui").classList.remove("hidden");
