@@ -51,56 +51,66 @@ const storyText = [
 ];
 
 // ==========================================
-// 🔊 PURE JAVASCRIPT AUDIO SYNTHESIZER ENGINE
+// 🔊 SAFE AUDIO SYNTHESIZER ENGINE (CHROME COMPATIBLE)
 // ==========================================
 const AudioEngine = {
     ctx: null,
     init() {
         if (!this.ctx) {
+            // Only creates audio context after a user interaction happens
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         }
     },
     playThrust() {
-        this.init();
-        let osc = this.ctx.createOscillator();
-        let gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(80, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.1);
-    },
-    playExplosion() {
-        this.init();
-        let osc = this.ctx.createOscillator();
-        let gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(160, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.4);
-        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.4);
-    },
-    playSuccess() {
-        this.init();
-        let notes = [261.63, 329.63, 392.00, 523.25]; // C E G C arpeggio
-        notes.forEach((freq, index) => {
+        try {
+            this.init();
+            if (!this.ctx) return;
             let osc = this.ctx.createOscillator();
             let gain = this.ctx.createGain();
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + index * 0.1);
-            gain.gain.setValueAtTime(0.15, this.ctx.currentTime + index * 0.1);
-            gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + index * 0.1 + 0.2);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(80, this.ctx.currentTime);
+            gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(this.ctx.currentTime + index * 0.1);
-            osc.stop(this.ctx.currentTime + index * 0.1 + 0.2);
-        });
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.1);
+        } catch(e) { console.log("Audio block prevented"); }
+    },
+    playExplosion() {
+        try {
+            this.init();
+            if (!this.ctx) return;
+            let osc = this.ctx.createOscillator();
+            let gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.4);
+        } catch(e) { console.log("Audio block prevented"); }
+    },
+    playSuccess() {
+        try {
+            this.init();
+            if (!this.ctx) return;
+            let notes = [261.63, 329.63, 392.00, 523.25]; 
+            notes.forEach((freq, index) => {
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime + index * 0.1);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime + index * 0.1);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + index * 0.1 + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(this.ctx.currentTime + index * 0.1);
+                osc.stop(this.ctx.currentTime + index * 0.1 + 0.2);
+            });
+        } catch(e) { console.log("Audio block prevented"); }
     }
 };
 
@@ -265,18 +275,4 @@ function engineLoop() {
             if (star.y > canvas.height) { star.y = 0; star.x = Math.random() * canvas.width; }
         }
     });
-
-    if (game.screen === 'menu') {
-        // Main Title Header
-        ctx.fillStyle = "#38bdf8";
-        ctx.font = "bold 36px system-ui";
-        ctx.textAlign = "center";
-        ctx.shadowColor = "#0284c7";
-        ctx.shadowBlur = 15;
-        ctx.fillText("🪐 ECHOES OF THE COSMOS", 300, 160);
-        ctx.shadowBlur = 0; 
-        
-        ctx.font = "14px monospace";
-        ctx.fillStyle = "#64748b";
-        ctx.fillText("NASA Space Apps Management Console", 300, 200);
 
